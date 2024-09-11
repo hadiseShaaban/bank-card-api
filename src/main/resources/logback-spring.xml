@@ -1,0 +1,45 @@
+<configuration>
+
+    <!-- تنظیمات پیش‌فرض برای لاگ‌های کنسول -->
+    <springProfile name="default">
+        <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+        <!-- تنظیمات برای نمایش لاگ‌های سطح INFO و بالاتر در کنسول با رنگ -->
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            </encoder>
+            <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+                <level>INFO</level>
+            </filter>
+            <encoder>
+                <pattern>
+                    %d{yyyy-MM-dd HH:mm:ss} %highlight(%-5level) %logger{36} - %msg%n
+                </pattern>
+            </encoder>
+        </appender>
+
+        <!-- تنظیمات روت لاگر برای نمایش لاگ‌های سطح INFO و بالاتر -->
+        <root level="INFO">
+            <appender-ref ref="CONSOLE" />
+        </root>
+    </springProfile>
+
+    <!-- تنظیمات برای لاگ‌های فایل، فقط لاگ‌های سطح ERROR -->
+    <appender name="ERROR_FILE" class="ch.qos.logback.core.FileAppender">
+        <file>logs/app-errors.log</file>
+        <append>true</append>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+    </appender>
+
+    <!-- تنظیمات روت لاگر برای ذخیره فقط لاگ‌های سطح ERROR در فایل -->
+    <root level="INFO">
+        <appender-ref ref="ERROR_FILE" />
+    </root>
+
+</configuration>

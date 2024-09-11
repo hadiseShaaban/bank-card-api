@@ -1,0 +1,1 @@
+2024-09-11 19:29:21.066 [http-nio-8080-exec-4] ERROR c.e.b.service.InMemoryCardService - No cards found for national ID: 111111111
