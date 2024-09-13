@@ -20,14 +20,19 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/h2-console/**","/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .anyRequest().authenticated())
                 .httpBasic()
                 .and()
                 .exceptionHandling()
                 .authenticationEntryPoint((request, response, authException) -> {
                     logger.warn("Unsuccessful login attempt: {}", request.getRemoteAddr());
                     response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
-                });
+                })
+                .and()
+                .csrf().disable()
+                .headers().frameOptions().disable();;
         return http.build();
     }
 

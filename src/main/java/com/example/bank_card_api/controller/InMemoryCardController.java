@@ -2,6 +2,7 @@ package com.example.bank_card_api.controller;
 
 import com.example.bank_card_api.model.Card;
 import com.example.bank_card_api.repository.InMemoryCardRepository;
+import com.example.bank_card_api.service.CardService;
 import com.example.bank_card_api.service.InMemoryCardService;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
@@ -19,17 +20,38 @@ public class InMemoryCardController {
     @Autowired
     InMemoryCardRepository inMemoryCardRepository;
 
-    private static final Logger logger = LoggerFactory.getLogger(CardController.class);
+    @Autowired
+    CardService cardService;
+
+    private static final Logger logger = LoggerFactory.getLogger(InMemoryCardController.class);
     private int loginCounter=0;
 
     public InMemoryCardController(InMemoryCardRepository inMemoryCardRepository) {
         this.inMemoryCardRepository = inMemoryCardRepository;
     }
 
+
+    @PostMapping("/cards/add-card")
+    public ResponseEntity<Card> createCard(@RequestBody Card card) {
+        try {
+            Card savedCard = cardService.saveCard(card);
+            boolean isAdded = inMemoryCardRepository.addCard(card);
+
+            if (!isAdded)
+                 logger.error("Card already exists or invalid input.");
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedCard);
+        } catch (Exception e) {
+            logger.error("Failed to create card: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
     @GetMapping("/cards/{nationalId}")
     public ResponseEntity<?> getCardsByNationalId(@PathVariable String nationalId,
-                                                          @RequestParam(required = false) String cardType,
-                                                          @RequestParam(required = false) String issuerName) {
+                                                  @RequestParam(required = false) String cardType,
+                                                  @RequestParam(required = false) String issuerName) {
         try {
             Set<Card> cards = inMemoryCardRepository.getCardsByNationalId(nationalId);
 
@@ -41,7 +63,7 @@ public class InMemoryCardController {
             if (cardType != null || issuerName != null) {//if cardType and issuerName entered we must check validity of them
                 cards.removeIf(card ->
                         (cardType != null && !card.getCardType().equalsIgnoreCase(cardType)) ||
-                        (issuerName != null && !card.getIssuerName().equalsIgnoreCase(issuerName))
+                                (issuerName != null && !card.getIssuerName().equalsIgnoreCase(issuerName))
                 );
             }
 
