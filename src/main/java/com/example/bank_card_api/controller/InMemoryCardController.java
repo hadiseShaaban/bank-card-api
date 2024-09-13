@@ -30,24 +30,6 @@ public class InMemoryCardController {
         this.inMemoryCardRepository = inMemoryCardRepository;
     }
 
-
-    @PostMapping("/cards/add-card")
-    public ResponseEntity<Card> createCard(@RequestBody Card card) {
-        try {
-            Card savedCard = cardService.saveCard(card);
-            boolean isAdded = inMemoryCardRepository.addCard(card);
-
-            if (!isAdded)
-                 logger.error("Card already exists or invalid input.");
-
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedCard);
-        } catch (Exception e) {
-            logger.error("Failed to create card: ", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-
     @GetMapping("/cards/{nationalId}")
     public ResponseEntity<?> getCardsByNationalId(@PathVariable String nationalId,
                                                   @RequestParam(required = false) String cardType,
@@ -73,6 +55,22 @@ public class InMemoryCardController {
             String errorMessage = "An unexpected error occurred. Please try again later.";
             logger.error("Error fetching cards for national ID: {}", nationalId, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorMessage);
+        }
+    }
+
+    @PostMapping("/cards/add-card")
+    public ResponseEntity<Card> createCard(@RequestBody Card card) {
+        try {
+            Card savedCard = cardService.saveCard(card);
+            boolean isAdded = inMemoryCardRepository.addCard(card);
+
+            if (!isAdded)
+                logger.error("Card already exists or invalid input.");
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedCard);
+        } catch (Exception e) {
+            logger.error("Failed to create card: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
